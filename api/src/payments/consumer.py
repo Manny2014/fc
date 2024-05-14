@@ -28,7 +28,7 @@ class TransactionProcessor:
             try:
                 self.transaction_svc.process_transaction(transaction)
             except Exception as e:
-                print(str(e))
+                self.transaction_svc.insert_failed_transactions(transaction, str(e))
 
 def main():
     c_host = os.environ.get('CASSANDRA_HOST', 'localhost')
