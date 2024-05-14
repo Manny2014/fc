@@ -1,0 +1,4 @@
+
+
+class InvalidTransactionRequest(Exception):
+    pass

@@ -1,0 +1,86 @@
+#version: '3.8'
+networks:
+  fc-backend:
+    external: false
+  fc-frontend:
+    external: false
+services:
+  kafka:
+    restart: always
+    image: docker.io/bitnami/kafka:3.3
+    volumes:
+      - ./.volumes/kafka/data:/bitnami"
+    ports:
+      - 9092:9092
+      - 9093:9093
+    container_name: broker1
+    networks:
+      - fc-backend
+    environment:
+      KAFKA_ENABLE_KRAFT: yes
+      KAFKA_CFG_NODE_ID: 1
+      KAFKA_CFG_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,INTERNAL://:9094
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,INTERNAL:PLAINTEXT
+      KAFKA_CFG_ADVERTISED_LISTENERS: INTERNAL://broker1:9094,PLAINTEXT://localhost:9092
+      KAFKA_CFG_BROKER_ID: 1
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: '1@broker1:9093'
+      ALLOW_PLAINTEXT_LISTENER: yes
+      KAFKA_KRAFT_CLUSTER_ID: r4zt_wrqTRuT7W2NJsB_GA
+  c1:
+     image: cassandra:latest
+     container_name: c1
+     hostname: c1
+     networks:
+       - fc-backend
+     ports:
+       - "9042:9042"
+     environment: &environment
+       CASSANDRA_SEEDS: "c1"
+       CASSANDRA_CLUSTER_NAME: FcCluster
+       CASSANDRA_DC: FC1
+       CASSANDRA_RACK: R1
+       CASSANDRA_ENDPOINT_SNITCH: GossipingPropertyFileSnitch
+       CASSANDRA_NUM_TOKENS: 128
+#  api:
+#    container_name: api
+#    build: .
+#    ports:
+#     - "8080:8080"
+#    expose:
+#      - "8080"
+#    links:
+#      - 'c1:database'
+#      - 'kafka:bus'
+#    image: "manny87/fc-payments-api:v1.0.0"
+#    networks:
+#      - fc-backend
+#      - fc-frontend
+#    environment:
+#      - CASSANDRA_HOST="localhost"
+#      - KAFKA_BROKERS="localhost:9094"
+#    depends_on:
+#      c1:
+#        condition: service_started
+#      kafka:
+#        condition: service_started
+
+#  processor:
+#    container_name: processor
+#    build: .
+#    entrypoint:  /home/pyapp/bin/consumer-entrypoint.sh
+#    links:
+#      - 'c1:database'
+#      - 'kafka:bus'
+#    image: "manny87/fc-payments-api:v1.0.0"
+#    networks:
+#      - fc-backend
+#      - fc-frontend
+#    environment:
+#      - CASSANDRA_HOST="localhost"
+#      - KAFKA_BROKERS="localhost:9094"
+#    depends_on:
+#      api:
+#        condition: service_started

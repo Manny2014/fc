@@ -1,0 +1,24 @@
+[project]
+name = "fc-api"
+version = "1.0.0"
+requires-python = ">=3.11"
+dependencies = [
+    "flask==3.0.3",
+    "Flask-RESTful",
+    "gunicorn==22.0.0",
+    "cassandra-driver",
+    "kafka-python",
+    "Faker"
+]
+
+
+[project.scripts]
+fc-payments-api = "payments.app:main"
+fc-payments-consumer = "payments.consumer:main"
+
+[build-system]
+requires = ["setuptools","wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
