@@ -25,6 +25,7 @@ class TransactionProcessor:
             j_data = json.loads(msg.value)
             transaction = Transaction(**j_data)
 
+            # handling the initial account check in the API call
             try:
                 self.transaction_svc.process_transaction(transaction)
             except Exception as e:
