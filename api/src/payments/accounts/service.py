@@ -2,6 +2,8 @@ from cassandra.cluster import Session
 
 from payments.accounts.exceptions import AccountNotFound,AccountAlreadyExists
 from payments.accounts.model import Account
+from cassandra.query import SimpleStatement,PreparedStatement
+from cassandra import ConsistencyLevel
 from logging import Logger
 
 class AccountsService():
@@ -27,7 +29,7 @@ class AccountsService():
         query = self.get_account_lookup_statement()
         results = self.db_session.execute(query, [account_id]).one()
 
-        self.logger.info(f"results {results}")
+        # self.logger.info(f"results {results}")
 
         if results is None:
             raise AccountNotFound(f"Account {account_id} not found")
@@ -44,6 +46,9 @@ class AccountsService():
 
     def get_account_lookup_statement(self) -> str:
         if self.account_lookup_statement is None:
+            # self.account_lookup_statement = SimpleStatement(
+            #     'SELECT id, balance FROM accounts WHERE id=?',
+            #     consistency_level=ConsistencyLevel.LOCAL_QUORUM)
             self.account_lookup_statement = self.db_session.prepare('SELECT id, balance FROM accounts WHERE id=?')
 
         return self.account_lookup_statement
@@ -53,5 +58,8 @@ class AccountsService():
     """
     def get_account_insert_statement(self) -> str:
         if self.account_insert_statement is None:
+            # self.account_insert_statement = PreparedStatement(
+            #     'INSERT INTO accounts (id, balance) VALUES (?, ?) IF NOT EXISTS',
+            #     consistency_level=ConsistencyLevel.LOCAL_QUORUM)
             self.account_insert_statement = self.db_session.prepare('INSERT INTO accounts (id, balance) VALUES (?, ?) IF NOT EXISTS')
         return self.account_insert_statement

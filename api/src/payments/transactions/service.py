@@ -4,7 +4,8 @@ from cassandra.cluster import Session
 from kafka import KafkaProducer
 from payments.util.serializers import json_serializer
 from payments.transactions.model import Transaction
-import json
+from cassandra.query import SimpleStatement,PreparedStatement
+from cassandra import ConsistencyLevel
 from logging import Logger
 
 from payments.accounts.service import AccountsService
@@ -46,16 +47,15 @@ class TransactionService():
         """.format(amount=transaction.amount, from_id=transaction.from_account_id, to_id=transaction.to_account_id,
                    tran_id=transaction.id, from_balance=from_account.balance, to_balance=to_account.balance)
 
-        result = self.db_session.execute(batch)
+        # QUORUM -> A write must be written to the commit log and memtable on a quorum of replica nodes across all datacenters.
+        query = SimpleStatement(batch, consistency_level=ConsistencyLevel.QUORUM)
 
-        # Check if the transaction was applied
-        if not result.was_applied:
-            self.insert_failed_transactions_statement(transaction, "Insufficient funds")
-            return False
+        result = self.db_session.execute(query)
 
         self.logger.info(
             f"Transaction {transaction.id} processed: {transaction.amount} from {transaction.from_account_id} to {transaction.to_account_id}")
 
+    # TODO: Won't implement/No time
     def get_transaction(self, transaction_id: str):
         pass
 
@@ -72,6 +72,10 @@ class TransactionService():
 
     def get_insert_failed_transactions(self):
         if self.insert_failed_transactions_statement is None:
+            # self.insert_failed_transactions_statement = PreparedStatement(
+            #     'INSERT INTO failed_transactions (id, from_account_id,to_account_id, amount, reason) VALUES (?, ?, ?, ?, ?) IF NOT EXISTS',
+            #     consistency_level=ConsistencyLevel.LOCAL_QUORUM)
+
             self.insert_failed_transactions_statement = self.db_session.prepare(
                 'INSERT INTO failed_transactions (id, from_account_id,to_account_id, amount, reason) VALUES (?, ?, ?, ?, ?) IF NOT EXISTS')
 

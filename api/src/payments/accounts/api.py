@@ -16,6 +16,7 @@ class AccountsApi(Resource):
     def get(self, account_id):
         try:
             account = self.accounts_svc.get_account(account_id)
+            self.logger.info(f"retrieved account {account.toJSON()}")
             return make_response(jsonify({"id": account.id, "balance": account.balance}), 200)
         except AccountNotFound as e:
             return make_response(jsonify({"error": "AccountNotFound", "message": str(e)}), 400)
