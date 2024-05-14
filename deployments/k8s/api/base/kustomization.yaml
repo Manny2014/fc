@@ -1,0 +1,7 @@
+resources:
+- resources
+
+configMapGenerator:
+- name: a-configmap
+  files:
+  - config/conf.json

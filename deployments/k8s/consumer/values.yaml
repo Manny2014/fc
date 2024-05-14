@@ -1,0 +1,16 @@
+# Template: helm template ./deploy
+
+replicaCount: 3
+
+fullnameOverride: fc-consumer
+
+image:
+  repository: manny87/fc-payments-api
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "v1.0.0"
+
+
+service:
+  type: ClusterIP
+  port: 8080

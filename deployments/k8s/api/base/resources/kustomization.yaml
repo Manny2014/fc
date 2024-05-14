@@ -1,0 +1,5 @@
+resources:
+- rbac.yaml
+- svc.yaml
+- hpa.yaml
+- workload.yaml

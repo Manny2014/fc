@@ -1,0 +1,18 @@
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMServiceAccount
+metadata:
+  name: fc-api
+spec:
+  displayName: fc-api
+---
+# Enables GCP Workload Identity for ease of integration with GCP Services
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPolicyMember
+metadata:
+  name: fc-api-wli
+spec:
+  member: serviceAccount:gcp-fc-project.svc.id.goog[fc-dv/sv-fc-ksa]
+  role: roles/iam.workloadIdentityUser
+  resourceRef:
+    kind: IAMServiceAccount
+    name: fc-api

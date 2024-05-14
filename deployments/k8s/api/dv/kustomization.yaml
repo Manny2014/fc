@@ -1,0 +1,12 @@
+resources:
+- namespace.yaml
+- ../base
+
+nameSuffix: -dv
+
+
+namespace: fc-dv
+
+images:
+- name: manny87/fc-payments-api
+  newTag: v0.1.0

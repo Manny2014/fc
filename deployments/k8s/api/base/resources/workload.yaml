@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fc-api
+  labels:
+    app: fc-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: fc-api
+  strategy:
+   type: RollingUpdate
+   rollingUpdate:
+     maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: fc-api
+    spec:
+      containers:
+      - name: main
+        image: manny87/fc-payments-api:v1.0.0
+        ports:
+        - containerPort: 8080
+        readinessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+            scheme: HTTP

@@ -147,8 +147,8 @@ flowchart LR
 #### Deployment
 - This component can run on GKE with multiple instances running behind and ingress controller/reverse proxy
     - In the past i've used Istio Virtual Services as it also gives us mTLS, but others can also work
-- Another option I would consider for this component is using CloudRun
-
+- Additionally, proper configuration and setup of Kubernetes readiness and liveness probes enables us to rely on the K8s platform and ensure customers are not impacted in the case of a bad deployment
+    - This requires setting proper health checks and configuring the workload to properly report when it is ready and healthy
 ### Transactions Processor
 
 #### Usage
